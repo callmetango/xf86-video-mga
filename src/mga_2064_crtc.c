@@ -552,14 +552,14 @@ state_set(xf86CrtcPtr crtc, MgaCrtcStatePtr state, DisplayModePtr mode)
     /*
      * Here all of the MGA registers get filled in.
      */
-    hd = (mode->HDisplay >> 3) - 1;
-    hs = (mode->HSyncStart >> 3) - 1;
-    he = (mode->HSyncEnd >> 3) - 1;
-    ht = (mode->HTotal >> 3) - 1;
-    vd = mode->VDisplay - 1;
-    vs = mode->VSyncStart - 1;
-    ve = mode->VSyncEnd - 1;
-    vt = mode->VTotal - 2;
+    hd = (mode->CrtcHDisplay >> 3) - 1;
+    hs = (mode->CrtcHSyncStart >> 3) - 1;
+    he = (mode->CrtcHSyncEnd >> 3) - 1;
+    ht = (mode->CrtcHTotal >> 3) - 1;
+    vd = mode->CrtcVDisplay - 1;
+    vs = mode->CrtcVSyncStart - 1;
+    ve = mode->CrtcVSyncEnd - 1;
+    vt = mode->CrtcVTotal - 2;
 
     /* HTOTAL & 0x7 equal to 0x6 in 8bpp or 0x4 in 24bpp causes strange
      * vertical stripes
