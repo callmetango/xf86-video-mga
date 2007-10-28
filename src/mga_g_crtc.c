@@ -261,7 +261,7 @@ MGAGCalcClock(xf86CrtcPtr crtc, long f_out,
 		*s = 3;	
 
 #ifdef DEBUG
-	xf86DrvMsg(pScrn->scrnIndex, X_INFO,
+	xf86DrvMsg(crtc->scrn->scrnIndex, X_INFO,
 		   "f_out_requ =%ld f_pll_real=%.1f f_vco=%.1f n=0x%x m=0x%x p=0x%x s=0x%x\n",
 		   f_out, (f_vco / (*p + 1)), f_vco, *best_n, *best_m, *p, *s );
 #endif
@@ -740,14 +740,14 @@ state_restore(xf86CrtcPtr crtc, MgaCrtcStatePtr state,
     for (i = 0; i < sizeof(state->DacRegs); i++) {
 #if 1
         if(!(i%16)) ErrorF("\n%02X: ",i);
-        ErrorF("%02X ", mgaReg->DacRegs[i]);
+        ErrorF("%02X ", state->DacRegs[i]);
 #else
         if(!(i%8)) ErrorF("\n%02X: ",i);
-        ErrorF("0x%02X, ", mgaReg->DacRegs[i]);
+        ErrorF("0x%02X, ", state->DacRegs[i]);
 #endif
     }
-    ErrorF("\nOPTION  = %08lX\n", mgaReg->Option);
-    ErrorF("OPTION2 = %08lX\n", mgaReg->Option2);
+    ErrorF("\nOPTION  = %08lX\n", state->Option);
+    ErrorF("OPTION2 = %08lX\n", state->Option2);
     ErrorF("CRTCEXT:");
     for (i=0; i<6; i++) ErrorF(" %02X", state->ExtVga[i]);
     ErrorF("\n");
