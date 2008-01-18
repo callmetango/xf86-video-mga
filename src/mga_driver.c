@@ -747,6 +747,7 @@ MGAProbe(DriverPtr drv, int flags)
         if (pScrn != NULL) {
 	    MGAPtr pMga;
             EntityInfoPtr pEnt;
+            int attrib_no;
 
 	    /* Fill in what we can of the ScrnInfoRec */
 	    pScrn->driverVersion = MGA_VERSION;
@@ -774,46 +775,46 @@ MGAProbe(DriverPtr drv, int flags)
 
             switch (pEnt->chipset) {
             case PCI_CHIP_MGA2064:
-                i = 0;
+                attrib_no = 0;
                 break;
 
             case PCI_CHIP_MGA1064: 
-                i = 1;
+                attrib_no = 1;
                 break;
 
             case PCI_CHIP_MGA2164:
             case PCI_CHIP_MGA2164_AGP:
-                i = 2;
+                attrib_no = 2;
                 break;
 
             case PCI_CHIP_MGAG100:
             case PCI_CHIP_MGAG100_PCI:
-                i = 3;
+                attrib_no = 3;
                 break;
 
             case PCI_CHIP_MGAG200:
             case PCI_CHIP_MGAG200_PCI:
-                i = 4;
+                attrib_no = 4;
                 break;
 
             case PCI_CHIP_MGAG400:
-                i = 5;
+                attrib_no = 5;
                 break;
 
             case PCI_CHIP_MGAG550:
-                i = 6;
+                attrib_no = 6;
                 break;
 
             case PCI_CHIP_MGAG200_SE_A_PCI:
             case PCI_CHIP_MGAG200_SE_B_PCI:
-                i = 7;
+                attrib_no = 7;
                 break;
 
 	    default:
 		return FALSE;
             }
 
-	    pMga->chip_attribs = & attribs[i];
+	    pMga->chip_attribs = & attribs[attrib_no];
         }
     }
     xfree(usedChips);
@@ -2407,8 +2408,10 @@ MGAUnmapMem(ScrnInfoPtr pScrn)
     
     if (!pMga->FBDev) {
 #ifdef XSERVER_LIBPCIACCESS
-        pci_device_unmap_range(dev, pMga->IOBase, 0x4000);
-        pci_device_unmap_range(dev, pMga->FbBase, pMga->FbMapSize);
+        pci_device_unmap_range(dev, pMga->IOBase, 
+			       dev->regions[pMga->io_bar].size);
+        pci_device_unmap_range(dev, pMga->FbBase, 
+			       dev->regions[pMga->framebuffer_bar].size);
 #else
 	xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pMga->IOBase, 0x4000);
 	xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pMga->FbBase, pMga->FbMapSize);
@@ -2421,7 +2424,8 @@ MGAUnmapMem(ScrnInfoPtr pScrn)
 
     if ((pMga->iload_bar != -1) && (pMga->ILOADBase != NULL)) {
 #ifdef XSERVER_LIBPCIACCESS
-        pci_device_unmap_range(dev, pMga->ILOADBase, 0x800000);
+        pci_device_unmap_range(dev, pMga->ILOADBase,
+			       dev->regions[pMga->iload_bar].size);
 #else
 	xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pMga->ILOADBase, 0x800000);
 #endif
@@ -3139,6 +3143,13 @@ MGAValidMode(int scrnIndex, DisplayModePtr mode, Bool verbose, int flags)
     int lace;
     ScrnInfoPtr pScrn = xf86Screens[scrnIndex];
     MGAPtr pMga = MGAPTR(pScrn);
+
+    if (pMga->Chipset == PCI_CHIP_MGAG200_SE_A_PCI) {
+	if (mode->HDisplay > 1600)
+	    return MODE_VIRTUAL_X;
+	if (mode->VDisplay > 1200)
+	    return MODE_VIRTUAL_Y;
+    }
 
     lace = 1 + ((mode->Flags & V_INTERLACE) != 0);
 
