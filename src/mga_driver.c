@@ -3953,6 +3953,13 @@ mga_valid_mode(ScrnInfoPtr pScrn, DisplayModePtr mode, int flags)
         return MODE_BANDWIDTH;
     }
 
+    if (pMga->is_G200SE || pMga->is_G200WB || pMga->is_G200EV ||
+	pMga->is_G200EH || pMga->is_G200ER) {
+	if (mode->HDisplay % 8 || mode->HSyncStart % 8 ||
+	    mode->HSyncEnd % 8 || mode->HTotal % 8)
+	    return MODE_H_ILLEGAL;
+    }
+
     lace = 1 + ((mode->Flags & V_INTERLACE) != 0);
 
     if ((mode->CrtcHDisplay <= 2048) &&
